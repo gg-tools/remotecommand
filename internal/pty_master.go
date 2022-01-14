@@ -16,21 +16,21 @@ type onWindowChangedCB func(int, int)
 
 // This defines a PTY Master whih will encapsulate the command we want to run, and provide simple
 // access to the command, to write and read IO, but also to control the window size.
-type ptyMaster struct {
+type PtyMaster struct {
 	ptyFile           *os.File
 	command           *exec.Cmd
 	terminalInitState *terminal.State
 }
 
-func PtyMasterNew() *ptyMaster {
-	return &ptyMaster{}
+func PtyMasterNew() *PtyMaster {
+	return &PtyMaster{}
 }
 
 func IsStdinTerminal() bool {
 	return terminal.IsTerminal(0)
 }
 
-func (pty *ptyMaster) Start(command string, args []string, envVars []string) (err error) {
+func (pty *PtyMaster) Start(command string, args []string, envVars []string) (err error) {
 	pty.command = exec.Command(command, args...)
 	pty.command.Env = envVars
 	pty.ptyFile, err = ptyDevice.Start(pty.command)
@@ -45,7 +45,7 @@ func (pty *ptyMaster) Start(command string, args []string, envVars []string) (er
 	return
 }
 
-func (pty *ptyMaster) MakeRaw() (err error) {
+func (pty *PtyMaster) MakeRaw() (err error) {
 
 	// Save the initial state of the terminal, before making it RAW. Note that this terminal is the
 	// terminal under which the tty-share command has been started, and it's identified via the
@@ -58,32 +58,32 @@ func (pty *ptyMaster) MakeRaw() (err error) {
 	return
 }
 
-func (pty *ptyMaster) SetWinChangeCB(winChangedCB onWindowChangedCB) {
+func (pty *PtyMaster) SetWinChangeCB(winChangedCB onWindowChangedCB) {
 	// Start listening for window changes
 	go OnWindowChanges(func(cols, rows int) {
 		// TODO:policy: should the server decide here if we care about the size and set it
 		// right here?
 		pty.SetWinSize(rows, cols)
 
-		// Notify the ptyMaster user of the window changes, to be sent to the remote side
+		// Notify the PtyMaster user of the window changes, to be sent to the remote side
 		winChangedCB(cols, rows)
 	})
 }
 
-func (pty *ptyMaster) GetWinSize() (int, int, error) {
+func (pty *PtyMaster) GetWinSize() (int, int, error) {
 	cols, rows, err := terminal.GetSize(0)
 	return cols, rows, err
 }
 
-func (pty *ptyMaster) Write(b []byte) (int, error) {
+func (pty *PtyMaster) Write(b []byte) (int, error) {
 	return pty.ptyFile.Write(b)
 }
 
-func (pty *ptyMaster) Read(b []byte) (int, error) {
+func (pty *PtyMaster) Read(b []byte) (int, error) {
 	return pty.ptyFile.Read(b)
 }
 
-func (pty *ptyMaster) SetWinSize(rows, cols int) {
+func (pty *PtyMaster) SetWinSize(rows, cols int) {
 	winSize := &ptyDevice.Winsize{
 		Rows: uint16(rows),
 		Cols: uint16(cols),
@@ -91,7 +91,7 @@ func (pty *ptyMaster) SetWinSize(rows, cols int) {
 	ptyDevice.Setsize(pty.ptyFile, winSize)
 }
 
-func (pty *ptyMaster) Refresh() {
+func (pty *PtyMaster) Refresh() {
 	// We wanna force the app to re-draw itself, but there doesn't seem to be a way to do that
 	// so we fake it by resizing the window quickly, making it smaller and then back big
 	cols, rows, err := pty.GetWinSize()
@@ -108,17 +108,17 @@ func (pty *ptyMaster) Refresh() {
 	}()
 }
 
-func (pty *ptyMaster) Wait() (err error) {
+func (pty *PtyMaster) Wait() (err error) {
 	err = pty.command.Wait()
 	return
 }
 
-func (pty *ptyMaster) Restore() {
+func (pty *PtyMaster) Restore() {
 	terminal.Restore(0, pty.terminalInitState)
 	return
 }
 
-func (pty *ptyMaster) Stop() (err error) {
+func (pty *PtyMaster) Stop() (err error) {
 	signal.Ignore(syscall.SIGWINCH)
 
 	pty.command.Process.Signal(syscall.SIGTERM)

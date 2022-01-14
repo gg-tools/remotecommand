@@ -12,7 +12,7 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 1 {
-		fmt.Println("Usage: client [service address]")
+		fmt.Println("usage: client [service address]")
 		return
 	}
 
@@ -21,7 +21,7 @@ func main() {
 
 	err := client.Run()
 	if err != nil {
-		log.Println("Cannot connect to the remote session. Make sure the URL points to a valid tty-share session.")
+		log.Println("cannot connect to the remote session, make sure the URL points to a valid tty-share session.")
 	}
 	log.Println("tty-share disconnected")
 	return
