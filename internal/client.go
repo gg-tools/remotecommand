@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"syscall"
 
-	"github.com/gg-tools/remotecommand/internal/server"
+	"github.com/gg-tools/remotecommand/internal/tty"
 	"github.com/gorilla/websocket"
 	"github.com/moby/term"
 	"log"
@@ -109,7 +109,7 @@ func (c *ttyShareClient) Run() (err error) {
 	defer term.RestoreTerminal(os.Stdin.Fd(), state)
 	clearScreen()
 
-	protoWS := server.NewTTYProtocolWSLocked(c.wsConn)
+	protoWS := tty.NewTTYProtocolWSLocked(c.wsConn)
 
 	monitorWinChanges := func() {
 		// start monitoring the size of the terminal

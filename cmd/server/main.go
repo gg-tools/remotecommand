@@ -9,7 +9,8 @@ import (
 	"strings"
 
 	"github.com/gg-tools/remotecommand/internal"
-	"github.com/gg-tools/remotecommand/internal/server"
+	"github.com/gg-tools/remotecommand/internal/http"
+	"github.com/gg-tools/remotecommand/internal/tty"
 )
 
 func main() {
@@ -42,7 +43,7 @@ func main() {
 	defer stopPtyAndRestore()
 
 	pty := ptyMaster
-	s := createServer(*listenAddress, "", pty, "111")
+	s := createServer(*listenAddress, pty)
 	if cols, rows, e := ptyMaster.GetWinSize(); e == nil {
 		s.WindowSize(cols, rows)
 	}
@@ -79,14 +80,12 @@ func main() {
 	s.Stop()
 }
 
-func createServer(frontListenAddress string, frontendPath string, pty server.PTYHandler, sessionID string) *server.TTYServer {
-	config := server.TTYServerConfig{
+func createServer(frontListenAddress string, pty tty.PTYHandler) *http.TTYServer {
+	config := http.TTYServerConfig{
 		FrontListenAddress: frontListenAddress,
-		FrontendPath:       frontendPath,
 		PTY:                pty,
-		SessionID:          sessionID,
 	}
 
-	s := server.NewTTYServer(config)
+	s := http.NewTTYServer(config)
 	return s
 }

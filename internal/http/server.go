@@ -1,43 +1,25 @@
-package server
+package http
 
 import (
 	"fmt"
+	"github.com/gg-tools/remotecommand/internal/tty"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 )
 
-const (
-	errorNotFound   = iota
-	errorNotAllowed = iota
-)
-
-type PTYHandler interface {
-	Write(data []byte) (int, error)
-	Refresh()
-}
-
-// SessionTemplateModel used for templating
-type AASessionTemplateModel struct {
-	SessionID string
-	Salt      string
-	WSPath    string
-}
-
 // TTYServerConfig is used to configure the tty server before it is started
 type TTYServerConfig struct {
 	FrontListenAddress string
-	FrontendPath       string
-	PTY                PTYHandler
-	SessionID          string
+	PTY                tty.PTYHandler
 }
 
 // TTYServer represents the instance of a tty server
 type TTYServer struct {
 	httpServer *http.Server
 	config     TTYServerConfig
-	session    *ttyShareSession
+	session    *tty.TTYShareSession
 }
 
 // NewTTYServer creates a new instance
@@ -59,10 +41,9 @@ func NewTTYServer(config TTYServerConfig) (server *TTYServer) {
 	// Install the same routes on both the /local/ and /<SessionID>/. The session ID is received
 	// from the tty-proxy server, if a public session is involved.
 	installHandlers("local")
-	installHandlers(config.SessionID)
 
 	server.httpServer.Handler = routesHandler
-	server.session = newTTYShareSession(config.PTY)
+	server.session = tty.NewTTYShareSession(config.PTY)
 
 	return server
 }
