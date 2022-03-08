@@ -149,7 +149,7 @@ func OnWindowChanges(wcCB onWindowChangedCB) {
 			if err == nil {
 				wcCB(cols, rows)
 			} else {
-				log.Println("Can't get window size: %s", err.Error())
+				log.Printf("Can't get window size: %s", err.Error())
 			}
 		}
 	}

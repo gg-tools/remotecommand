@@ -1,0 +1,13 @@
+version: '3.1'
+
+services:
+
+  remotecommand:
+    image: liamylian/remotecommand:latest
+    privileged: true
+    ipc: host
+    pid: host
+    network_mode: host
+    restart: always
+    environment:
+      LOG_LEVEL: "info"

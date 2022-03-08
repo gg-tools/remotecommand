@@ -87,7 +87,7 @@ func (session *TTYShareSession) HandleWSConnection(wsConn *websocket.Conn) {
 	winSize := session.lastWindowSizeMsg
 	session.mainRWLock.Unlock()
 
-	log.Println("New WS connection (%s). Serving ..", wsConn.RemoteAddr().String())
+	log.Printf("New WS connection (%s). Serving ..", wsConn.RemoteAddr().String())
 
 	// Sending the initial size of the window, if we have one
 	protoConn.SetWinSize(winSize.Cols, winSize.Rows)
@@ -104,7 +104,7 @@ func (session *TTYShareSession) HandleWSConnection(wsConn *websocket.Conn) {
 		)
 
 		if err != nil {
-			log.Println("Finished the WS reading loop: %s", err.Error())
+			log.Printf("Finished the WS reading loop: %s", err.Error())
 			break
 		}
 	}

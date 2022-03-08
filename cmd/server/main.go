@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	listenAddress := flag.String("listen", ":8000", "tty-server address")
+	listenAddress := flag.String("listen", ":8022", "tty-server address")
 	flag.Parse()
 
 	// tty-share works as a server, from here on

@@ -69,7 +69,7 @@ func (s *session) setup() {
 	}
 
 	s.pty.SetWinChangeCB(func(cols, rows int) {
-		log.Print("new window size: %dx%d", cols, rows)
+		log.Printf("new window size: %dx%d", cols, rows)
 		s.session.WindowSize(cols, rows)
 	})
 
@@ -97,7 +97,7 @@ func createSession() (*session, error) {
 	envVars := os.Environ()
 	err := ptyMaster.Start(commandName, strings.Fields(commandArgs), envVars)
 	if err != nil {
-		log.Println("cannot start the %s command: %s", commandName, err.Error())
+		log.Printf("cannot start the %s command: %s", commandName, err.Error())
 		return nil, err
 	}
 	ptyMaster.MakeRaw()

@@ -65,7 +65,7 @@ func (kl *keyListener) Read(data []byte) (n int, err error) {
 }
 
 func (c *ttyShareClient) updateAndDecideStdoutMuted() {
-	log.Println("This window: %dx%d. Remote window: %dx%d", c.winSizes.thisW, c.winSizes.thisH, c.winSizes.remoteW, c.winSizes.remoteH)
+	log.Printf("This window: %dx%d. Remote window: %dx%d", c.winSizes.thisW, c.winSizes.thisH, c.winSizes.remoteW, c.winSizes.remoteH)
 
 	if c.winSizes.thisH < c.winSizes.remoteH || c.winSizes.thisW < c.winSizes.remoteW {
 		atomic.StoreUint32(&c.ioFlagAtomic, 0)
@@ -92,7 +92,7 @@ func (c *ttyShareClient) updateThisWinSize() {
 }
 
 func (c *ttyShareClient) Run() (err error) {
-	log.Println("Connecting as a client to %s ..", c.url)
+	log.Printf("Connecting as a client to %s ..", c.url)
 
 	c.wsConn, _, err = websocket.DefaultDialer.Dial(c.url, nil)
 	if err != nil {
@@ -101,7 +101,7 @@ func (c *ttyShareClient) Run() (err error) {
 
 	detachBytes, err := term.ToBytes(c.detachKeys)
 	if err != nil {
-		log.Println("Invalid dettaching keys: %s", c.detachKeys)
+		log.Printf("Invalid dettaching keys: %s", c.detachKeys)
 		return
 	}
 
@@ -148,7 +148,7 @@ func (c *ttyShareClient) Run() (err error) {
 			)
 
 			if err != nil {
-				log.Println("Error parsing remote message: %s", err.Error())
+				log.Printf("Error parsing remote message: %s", err.Error())
 				if err == io.EOF {
 					// Remote WS connection closed
 					return
@@ -165,7 +165,7 @@ func (c *ttyShareClient) Run() (err error) {
 		_, err := io.Copy(protoWS, kl)
 
 		if err != nil {
-			log.Println("Connection closed: %s", err.Error())
+			log.Printf("Connection closed: %s", err.Error())
 			c.Stop()
 			return
 		}
